@@ -1,18 +1,19 @@
 #include <GL/glut.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "vec.h"
-typedef vec3 point3
+#include <math.h>
+//#include "vec.h"
+//typedef vec3 point3
 //#define point3 int
 
-GLfloat xRotated, yRotated, zRotated;
+/*GLfloat xRotated, yRotated, zRotated;
 GLdouble radius=1;
-point3 quad_data[342];
+point3 quad_data[342];*/
 //int strip_data[40];
 
 
 void display(void);
-void reshape(int x, int y);
+//void reshape(int x, int y);
 
 void myinit()
 {
@@ -24,14 +25,14 @@ void myinit()
     /*setup viewing*/
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluOrtho2D(0.0,500.0,0.0,500.0);
+    glOrtho(-2.0,2.0,-2.0,2.0,-2.0,2.0);
     glMatrixMode(GL_MODELVIEW);
 
 }
 
 
 
-void horizontal()
+/*void horizontal()
 {
 float M_PI = 3.14159;
 const float DegreesToRadians = M_PI / 180.0; // M_PI = 3.14159...
@@ -54,7 +55,7 @@ quad_data[k] = (int)(sin(thetar)*cos(phir20),cos(thetar)*cos(phir20), sin(phir20
 k++;
 }
 }
-}
+}*/
 
 /*void vertical()
 {
@@ -82,15 +83,46 @@ strip_data[k] = (int)(sin(thetar)*cos80,cos(thetar)*cos80, sin80);
 k++;
 }
 }*/
-
+int X,Y,Z;
 void display()
 {
-  horizontal();
- // vertical();
-  glClear(GL_COLOR_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
   glColor3f(0.0,0.0,1.0);
-  glBegin(GL_QUAD_STRIP);
+  glLoadIdentity();
+  float phir,phi,phir20,theta,thetar;
+  const float c=(3.14/180);
+  for(phi=-80.0;phi<=80.0;phi+=20.0)
+  {
+    phir = phi*c;
+    phir20 = (phi+20.0)*c;
+    thetar = theta*c;
+    glBegin(GL_QUAD_STRIP);
+    for(theta=-180.0;theta<=180.0;theta+=20.0)
+    {
+        thetar = theta*c;
+        X = sin(thetar)*cos(phir);
+        Y = cos(thetar)*sin(phir);
+        Z = sin(phir);
+        glVertex3f(X,Y,Z);
+        X=sin(thetar)*cos(phir20);
+        Y=cos(thetar)*sin(phir20);
+        Z=sin(phir);
+        glVertex3f(X,Y,Z);
+        glEnd();
+        glFlush();
+    }
 
+    glFlush();
+  }
+
+
+
+}
+
+void myReshape(int w,int h)
+{
+    glViewport(0,0,w,h);
+    glMatrixMode(GL_PROJECTION);
 
 }
 
@@ -98,13 +130,14 @@ void display()
 int main (int argc, char **argv)
 {
     glutInit(&argc, argv);
-    glutInitWindowSize(350,350);
+    glutInitDisplayMode(GLUT_SINGLE|GLUT_RGB);
     glutCreateWindow("Solid Sphere");
-    xRotated = yRotated = zRotated = 30.0;
-    xRotated=43;
-    yRotated=50;
+    glutInitWindowSize(5000,5000);
+    glutInitWindowPosition(0,0);
+
 
     glutDisplayFunc(display);
+    myinit();
 //    glutReshapeFunc(reshape);
     glutMainLoop();
     return 0;
