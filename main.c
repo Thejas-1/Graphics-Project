@@ -1,12 +1,14 @@
 #include <GL/glut.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "vec.h"
+typedef vec3 point3
 //#define point3 int
 
 GLfloat xRotated, yRotated, zRotated;
 GLdouble radius=1;
-int quad_data[342];
-int strip_data[40];
+point3 quad_data[342];
+//int strip_data[40];
 
 
 void display(void);
