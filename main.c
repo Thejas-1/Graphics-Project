@@ -5,7 +5,8 @@
 
 GLfloat xRotated, yRotated, zRotated;
 GLdouble radius=1;
-
+int quad_data[342];
+int strip_data[40];
 
 
 void display(void);
@@ -33,7 +34,7 @@ void horizontal()
 float M_PI = 3.14159;
 const float DegreesToRadians = M_PI / 180.0; // M_PI = 3.14159...
 //point3
-int quad_data[342];
+
 // 8 rows of 18 quads
 int k = 0;
 float phi,theta;
@@ -53,13 +54,12 @@ k++;
 }
 }
 
-void vertical()
+/*void vertical()
 {
 float M_PI = 3.14159;
 const float DegreesToRadians = M_PI / 180.0; // M_PI = 3.14159...
 int k = 0;
 //point3
-int strip_data[40];
 strip_data[k] = (int)(0.0, 0.0, 1.0);
 k++;
 float sin80 = sin(80.0*DegreesToRadians);
@@ -79,12 +79,17 @@ float thetar = theta;
 strip_data[k] = (int)(sin(thetar)*cos80,cos(thetar)*cos80, sin80);
 k++;
 }
-}
+}*/
 
 void display()
 {
   horizontal();
-  vertical();
+ // vertical();
+  glClear(GL_COLOR_BUFFER_BIT);
+  glColor3f(0.0,0.0,1.0);
+  glBegin(GL_QUAD_STRIP);
+
+
 }
 
 
