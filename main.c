@@ -97,21 +97,20 @@ void display()
     phir20 = (phi+20.0)*c;
     thetar = theta*c;
     glBegin(GL_QUAD_STRIP);
+    glColor3f(1.0,0.0,0.0);
     for(theta=-180.0;theta<=180.0;theta+=20.0)
     {
         thetar = theta*c;
         X = sin(thetar)*cos(phir);
         Y = cos(thetar)*sin(phir);
         Z = sin(phir);
-        glVertex3f(X,Y,Z);
+        glVertex3d(X,Y,Z);
         X=sin(thetar)*cos(phir20);
         Y=cos(thetar)*sin(phir20);
         Z=sin(phir);
-        glVertex3f(X,Y,Z);
-        glEnd();
-        glFlush();
+        glVertex3d(X,Y,Z);
     }
-
+    glEnd();
     glFlush();
   }
 
@@ -140,13 +139,13 @@ int main (int argc, char **argv)
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE|GLUT_RGB);
     glutCreateWindow("Solid Sphere");
-    glutInitWindowSize(5000,5000);
+    glutInitWindowSize(500,500);
     glutInitWindowPosition(0,0);
 
 
     glutDisplayFunc(display);
     myinit();
-//    glutReshapeFunc(reshape);
+   glutReshapeFunc(myReshape);
     glutMainLoop();
     return 0;
 }
