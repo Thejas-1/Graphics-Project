@@ -1,152 +1,162 @@
-#include <GL/glut.h>
-#include <stdlib.h>
-#include <stdio.h>
+
 #include <math.h>
-//#include "vec.h"
-//typedef vec3 point3
-//#define point3 int
+//#include <iostream>
+#include <GL/glut.h>
 
-/*GLfloat xRotated, yRotated, zRotated;
-GLdouble radius=1;
-point3 quad_data[342];*/
-//int strip_data[40];
+#define PI 3.14159265
 
+//using namespace std;
 
-void display(void);
-//void reshape(int x, int y);
+// Globals.
+static float R = 5.0; // Radius of hemisphere.
+static int p = 12; // Number of longitudinal slices.
+static int q = 10; // Number of latitudinal slices.
+static float Xangle = 0.0, Yangle = 0.0, Zangle = 0.0; // Angles to rotate hemisphere.
 
-void myinit()
+// Drawing routine.
+void display(void)
 {
-    /*attributes*/
-    glClearColor(1.0,1.0,1.0,1.0);
-    /*White Background*/
-    glColor3f(1.0,0.0,0.0);
-    /*Draw in red*/
-    /*setup viewing*/
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(-2.0,2.0,-2.0,2.0,-2.0,2.0);
-    glMatrixMode(GL_MODELVIEW);
+   int  i, j;
 
+   glClear (GL_COLOR_BUFFER_BIT);
+
+   glLoadIdentity(); //Always used before glTranslate or any other matrix transformation so that the present matrix is converted into identity matrix to start from fresh
+
+
+   glTranslatef(0.0, 0.0, -10.0); // Command to push the hemisphere, which is drawn centered at the origin,
+   // into the viewing frustum.
+
+   // Commands to turn the hemisphere.
+   glRotatef(Zangle, 0.0, 0.0, 1.0);
+   glRotatef(Yangle, 0.0, 1.0, 0.0);
+   glRotatef(Xangle, 1.0, 0.0, 0.0);
+
+   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+   glColor3f(0.0, 0.0, 0.0);
+
+   // Array of latitudinal quadrilateral strips, each parallel to the equator, stacked one
+   // above the other from the equator to the north pole.
+   for(j = 0; j < q; j++)
+   {
+      // One latitudinal triangle strip.
+      glBegin(GL_QUAD_STRIP);
+         for(i = 0; i <= p; i++)
+		 {
+            glVertex3f( R * cos( (float)(j+1)/q * PI/2.0 ) * cos( 2.0 * (float)i/p * PI ),
+                        R * sin( (float)(j+1)/q * PI/2.0 ),
+					    R * cos( (float)(j+1)/q * PI/2.0 ) * sin( 2.0 * (float)i/p * PI ) );
+            glVertex3f( R * cos( (float)j/q * PI/2.0 ) * cos( 2.0 * (float)i/p * PI ),
+                        R * sin( (float)j/q * PI/2.0 ),
+					    R * cos( (float)j/q * PI/2.0 ) * sin( 2.0 * (float)i/p * PI ) );
+		 }
+      glEnd();
+   }
+
+   glFlush();
 }
 
-
-
-/*void horizontal()
+// Initialization routine.
+void setup(void)
 {
-float M_PI = 3.14159;
-const float DegreesToRadians = M_PI / 180.0; // M_PI = 3.14159...
-//point3
-
-// 8 rows of 18 quads
-int k = 0;
-float phi,theta;
-for(phi = -80.0; phi <= 80.0; phi += 20.0)
-{
-float phir
-= phi*DegreesToRadians;
-float phir20 = (phi + 20.0)*DegreesToRadians;
-for(theta = -180.0; theta <= 180.0; theta += 20.0)
-{
-float thetar = theta*DegreesToRadians;
-quad_data[k] = (int)(sin(thetar)*cos(phir),cos(thetar)*cos(phir), sin(phir));
-k++;
-quad_data[k] = (int)(sin(thetar)*cos(phir20),cos(thetar)*cos(phir20), sin(phir20));
-k++;
+   glClearColor(1.0, 1.0, 1.0, 0.0);
 }
+
+// OpenGL window reshape routine.
+void resize(int w, int h)
+{
+   glViewport(0, 0, (GLsizei)w, (GLsizei)h);
+   glMatrixMode(GL_PROJECTION);
+   glLoadIdentity();
+
+   glFrustum(-5.0, 5.0, -5.0, 5.0, 5.0, 100.0);
+   // gluPerspective(90.0, 1.0, 5.0, 100.0);
+   // gluPerspective(90.0, (float)w/(float)h, 5.0, 100.0);
+
+   glMatrixMode(GL_MODELVIEW);
 }
+
+// Keyboard input processing routine.
+/*void keyInput(unsigned char key, int x, int y)
+{
+   switch(key)
+   {
+      case 27:
+         exit(0);
+         break;
+      case 'P':
+         p += 1;
+         glutPostRedisplay();
+         break;
+      case 'p':
+         if (p > 3) p -= 1;
+         glutPostRedisplay();
+         break;
+      case 'Q':
+         q += 1;
+         glutPostRedisplay();
+         break;
+      case 'q':
+         if (q > 3) q -= 1;
+         glutPostRedisplay();
+         break;
+      case 'x':
+         Xangle += 5.0;
+		 if (Xangle > 360.0) Xangle -= 360.0;
+         glutPostRedisplay();
+         break;
+      case 'X':
+         Xangle -= 5.0;
+		 if (Xangle < 0.0) Xangle += 360.0;
+         glutPostRedisplay();
+         break;
+      case 'y':
+         Yangle += 5.0;
+		 if (Yangle > 360.0) Yangle -= 360.0;
+         glutPostRedisplay();
+         break;
+      case 'Y':
+         Yangle -= 5.0;
+		 if (Yangle < 0.0) Yangle += 360.0;
+         glutPostRedisplay();
+         break;
+      case 'z':
+         Zangle += 5.0;
+		 if (Zangle > 360.0) Zangle -= 360.0;
+         glutPostRedisplay();
+         break;
+      case 'Z':
+         Zangle -= 5.0;
+		 if (Zangle < 0.0) Zangle += 360.0;
+         glutPostRedisplay();
+         break;
+      default:
+         break;
+   }
 }*/
 
-/*void vertical()
+// Routine to output interaction instructions to the C++ window.
+/*void printInteraction(void)
 {
-float M_PI = 3.14159;
-const float DegreesToRadians = M_PI / 180.0; // M_PI = 3.14159...
-int k = 0;
-//point3
-strip_data[k] = (int)(0.0, 0.0, 1.0);
-k++;
-float sin80 = sin(80.0*DegreesToRadians);
-float cos80 = cos(80.0*DegreesToRadians);
-float theta;
-for(theta = -180.0; theta <= 180.0; theta += 20.0)
-{
-float thetar = theta*DegreesToRadians;
-strip_data[k] = (int)(sin(thetar)*cos80,cos(thetar)*cos80, sin80);
-k++;
-}
-strip_data[k] = (int)(0.0, 0.0, -1.0);
-k++;
-for(theta = -180.0; theta <= 180.0; theta += 20.0)
-{
-float thetar = theta;
-strip_data[k] = (int)(sin(thetar)*cos80,cos(thetar)*cos80, sin80);
-k++;
-}
+   cout << "Interaction:" << endl;
+   cout << "Press P/p to increase/decrease the number of longitudinal slices." << endl
+        << "Press Q/q to increase/decrease the number of latitudinal slices." << endl
+        << "Press x, X, y, Y, z, Z to turn the hemisphere." << endl;
 }*/
-int X,Y,Z;
-void display()
+
+// Main routine.
+int main(int argc, char **argv)
 {
-  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-  glColor3f(0.0,0.0,1.0);
-  glLoadIdentity();
-  float phir,phi,phir20,theta,thetar;
-  const float c=(3.14/180);
-  for(phi=-80.0;phi<=80.0;phi+=20.0)
-  {
-    phir = phi*c;
-    phir20 = (phi+20.0)*c;
-    thetar = theta*c;
-    glBegin(GL_QUAD_STRIP);
-    glColor3f(1.0,0.0,0.0);
-    for(theta=-180.0;theta<=180.0;theta+=20.0)
-    {
-        thetar = theta*c;
-        X = sin(thetar)*cos(phir);
-        Y = cos(thetar)*sin(phir);
-        Z = sin(phir);
-        glVertex3d(X,Y,Z);
-        X=sin(thetar)*cos(phir20);
-        Y=cos(thetar)*sin(phir20);
-        Z=sin(phir);
-        glVertex3d(X,Y,Z);
-    }
-    glEnd();
-    glFlush();
-  }
+   //printInteraction();
+   glutInit(&argc, argv);
+   glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+   glutInitWindowSize(500, 500);
+   glutInitWindowPosition(100, 100);
+   glutCreateWindow("hemisphere.cpp");
+   setup();
+   glutDisplayFunc(display);
+   glutReshapeFunc(resize);
+  // glutKeyboardFunc(keyInput);
+   glutMainLoop();
 
-
-
+   return 0;
 }
-
-void myReshape(int w,int h)
-{
-    glViewport(0,0,w,h);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    if(w<=h)
-    glOrtho(-2.0,2.0,-2.0*(GLfloat)h/(GLfloat)w,2.0*(GLfloat)h/(GLfloat)w,-10.0,10.0);
-    else
-    glOrtho(-2.0*(GLfloat)w/(GLfloat)h,2.0*(GLfloat)w/(GLfloat)h,-2.0,2.0,-10.0,10.0);
-    glMatrixMode(GL_MODELVIEW);
-    glutPostRedisplay();
-
-
-}
-
-
-int main (int argc, char **argv)
-{
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE|GLUT_RGB);
-    glutCreateWindow("Solid Sphere");
-    glutInitWindowSize(500,500);
-    glutInitWindowPosition(0,0);
-
-
-    glutDisplayFunc(display);
-    myinit();
-   glutReshapeFunc(myReshape);
-    glutMainLoop();
-    return 0;
-}
-
