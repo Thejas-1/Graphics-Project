@@ -1,162 +1,99 @@
-
-#include <math.h>
-//#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
 #include <GL/glut.h>
+#include <GL/gl.h>
+#include <windows.h>
+#include <GL/glu.h>
+#include <math.h>
+int i;
+void curvedraw(GLfloat [4][3]);
+GLfloat ctrlpoints1[4][3] = {
+        { 255.0, 260.0, 0.0}, { 280.0, 300.0, 0.0},
+        {290.0, 350.0, 0.0}, {300.0, 400.0, 0.0}};
+GLfloat ctrlpoints2[4][3] = {
+        { 245.0, 260.0, 0.0}, { 220.0, 300.0, 0.0},
+        {210.0, 350.0, 0.0}, {200.0, 400.0, 0.0}};
+GLfloat ctrlpoints3[4][3] = {
+        { 245.0, 240.0, 0.0}, { 220.0, 200.0, 0.0},
+        {210.0, 150.0, 0.0}, {200.0, 100.0, 0.0}};
+GLfloat ctrlpoints4[4][3] = {
+        { 255.0, 240.0, 0.0}, { 280.0, 200.0, 0.0},
+        {290.0, 150.0, 0.0}, {300.0, 100.0, 0.0}};
 
-#define PI 3.14159265
 
-//using namespace std;
+void drawHollowCircle(GLfloat x, GLfloat y, GLfloat radius){
+	int i;
+	int lineAmount = 100; //# of triangles used to draw circle
 
-// Globals.
-static float R = 5.0; // Radius of hemisphere.
-static int p = 12; // Number of longitudinal slices.
-static int q = 10; // Number of latitudinal slices.
-static float Xangle = 0.0, Yangle = 0.0, Zangle = 0.0; // Angles to rotate hemisphere.
-
-// Drawing routine.
+	//GLfloat radius = 0.8f; //radius
+	GLfloat twicePi = 2.0f * M_PI;
+	glBegin(GL_LINE_LOOP);
+		for(i = lineAmount; i >= 0;i--) {
+			glVertex2f(
+			    x + (radius * cos(i *  twicePi / lineAmount)),
+			    y + (radius* sin(i * twicePi / lineAmount))
+			);
+		}
+	glEnd();
+}
+void init()
+{
+    glClearColor(1.0,1.0,1.0,1.0);
+    glColor3i(1,0,0);
+    glPointSize(5.0);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glLineWidth(2.0);
+    gluOrtho2D(0.0,499.0,0.0,499.0);
+    glShadeModel(GL_FLAT);
+}
 void display(void)
 {
-   int  i, j;
-
-   glClear (GL_COLOR_BUFFER_BIT);
-
-   glLoadIdentity(); //Always used before glTranslate or any other matrix transformation so that the present matrix is converted into identity matrix to start from fresh
-
-
-   glTranslatef(0.0, 0.0, -10.0); // Command to push the hemisphere, which is drawn centered at the origin,
-   // into the viewing frustum.
-
-   // Commands to turn the hemisphere.
-   glRotatef(Zangle, 0.0, 0.0, 1.0);
-   glRotatef(Yangle, 0.0, 1.0, 0.0);
-   glRotatef(Xangle, 1.0, 0.0, 0.0);
-
-   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-   glColor3f(0.0, 0.0, 0.0);
-
-   // Array of latitudinal quadrilateral strips, each parallel to the equator, stacked one
-   // above the other from the equator to the north pole.
-   for(j = 0; j < q; j++)
-   {
-      // One latitudinal triangle strip.
-      glBegin(GL_QUAD_STRIP);
-         for(i = 0; i <= p; i++)
-		 {
-            glVertex3f( R * cos( (float)(j+1)/q * PI/2.0 ) * cos( 2.0 * (float)i/p * PI ),
-                        R * sin( (float)(j+1)/q * PI/2.0 ),
-					    R * cos( (float)(j+1)/q * PI/2.0 ) * sin( 2.0 * (float)i/p * PI ) );
-            glVertex3f( R * cos( (float)j/q * PI/2.0 ) * cos( 2.0 * (float)i/p * PI ),
-                        R * sin( (float)j/q * PI/2.0 ),
-					    R * cos( (float)j/q * PI/2.0 ) * sin( 2.0 * (float)i/p * PI ) );
-		 }
-      glEnd();
-   }
-
-   glFlush();
+	glClear(GL_COLOR_BUFFER_BIT);
+	glColor3f(1.0, 0.0, 0.0);
+    drawHollowCircle(250.0,400.0,50.0);
+    drawHollowCircle(250.0,100.0,50.0);
+    glFlush();
+    curvedraw(ctrlpoints1);
+    curvedraw(ctrlpoints2);
+    curvedraw(ctrlpoints3);
+    curvedraw(ctrlpoints4);
+    glColor3f(1.0,0.0,0.0);
+    glBegin(GL_LINES);
+    glVertex2f(255.0,260.0);
+    glVertex2f(255.0,240.0);
+    glVertex2f(245.0,240.0);
+    glVertex2f(245.0,260.0);
+    glEnd();
+    glFlush();
 }
-
-// Initialization routine.
-void setup(void)
+void curvedraw(GLfloat ctr[4][3])
 {
-   glClearColor(1.0, 1.0, 1.0, 0.0);
+    glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, 4, &ctr[0][0]);
+    glEnable(GL_MAP1_VERTEX_3);
+    glColor3f(1.0, 0.0, 0.0);
+    glBegin(GL_LINE_STRIP);
+    for (i = 0; i <= 30; i++)
+         glEvalCoord1f((GLfloat) i/30.0);
+    glEnd();
+    /* The following code displays the control points as dots.
+    glPointSize(5.0);
+    glColor3f(1.0, 0.0, 0.0);
+    glBegin(GL_POINTS);
+    for (i = 0; i < 4; i++)
+         glVertex3fv(&ctr[i][0]);
+    glEnd();*/
+    glFlush();
 }
-
-// OpenGL window reshape routine.
-void resize(int w, int h)
+int main(int argc,char** argv)
 {
-   glViewport(0, 0, (GLsizei)w, (GLsizei)h);
-   glMatrixMode(GL_PROJECTION);
-   glLoadIdentity();
-
-   glFrustum(-5.0, 5.0, -5.0, 5.0, 5.0, 100.0);
-   // gluPerspective(90.0, 1.0, 5.0, 100.0);
-   // gluPerspective(90.0, (float)w/(float)h, 5.0, 100.0);
-
-   glMatrixMode(GL_MODELVIEW);
-}
-
-// Keyboard input processing routine.
-/*void keyInput(unsigned char key, int x, int y)
-{
-   switch(key)
-   {
-      case 27:
-         exit(0);
-         break;
-      case 'P':
-         p += 1;
-         glutPostRedisplay();
-         break;
-      case 'p':
-         if (p > 3) p -= 1;
-         glutPostRedisplay();
-         break;
-      case 'Q':
-         q += 1;
-         glutPostRedisplay();
-         break;
-      case 'q':
-         if (q > 3) q -= 1;
-         glutPostRedisplay();
-         break;
-      case 'x':
-         Xangle += 5.0;
-		 if (Xangle > 360.0) Xangle -= 360.0;
-         glutPostRedisplay();
-         break;
-      case 'X':
-         Xangle -= 5.0;
-		 if (Xangle < 0.0) Xangle += 360.0;
-         glutPostRedisplay();
-         break;
-      case 'y':
-         Yangle += 5.0;
-		 if (Yangle > 360.0) Yangle -= 360.0;
-         glutPostRedisplay();
-         break;
-      case 'Y':
-         Yangle -= 5.0;
-		 if (Yangle < 0.0) Yangle += 360.0;
-         glutPostRedisplay();
-         break;
-      case 'z':
-         Zangle += 5.0;
-		 if (Zangle > 360.0) Zangle -= 360.0;
-         glutPostRedisplay();
-         break;
-      case 'Z':
-         Zangle -= 5.0;
-		 if (Zangle < 0.0) Zangle += 360.0;
-         glutPostRedisplay();
-         break;
-      default:
-         break;
-   }
-}*/
-
-// Routine to output interaction instructions to the C++ window.
-/*void printInteraction(void)
-{
-   cout << "Interaction:" << endl;
-   cout << "Press P/p to increase/decrease the number of longitudinal slices." << endl
-        << "Press Q/q to increase/decrease the number of latitudinal slices." << endl
-        << "Press x, X, y, Y, z, Z to turn the hemisphere." << endl;
-}*/
-
-// Main routine.
-int main(int argc, char **argv)
-{
-   //printInteraction();
-   glutInit(&argc, argv);
-   glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-   glutInitWindowSize(500, 500);
-   glutInitWindowPosition(100, 100);
-   glutCreateWindow("hemisphere.cpp");
-   setup();
-   glutDisplayFunc(display);
-   glutReshapeFunc(resize);
-  // glutKeyboardFunc(keyInput);
-   glutMainLoop();
-
-   return 0;
+    glutInit(&argc,argv);
+    glutInitDisplayMode(GLUT_SINGLE|GLUT_RGB);
+    glutInitWindowSize(500,500);
+    glutInitWindowPosition(0,0);
+    glutCreateWindow("Circle");
+    glutDisplayFunc(display);
+    init();
+    glutMainLoop();
+    return 0;
 }
