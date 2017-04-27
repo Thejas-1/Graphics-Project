@@ -139,6 +139,23 @@ void draw(float p1[],float q1[],float p2[],float q2[])
         glEnd();
         glFlush();
 }
+
+void sleep1()
+{
+    for(i=0;i<160;i++)
+    {
+        glColor3f(1.0,1.0,0.0);
+        glBegin(GL_POINTS);
+       // drawHollowCircle(247.0,260.0-i,1.0);
+        drawHollowCircle(250.0,260.0-i,1.0);
+      //  drawHollowCircle(253.0,260.0-i,1.0);
+        glEnd();
+        glFlush();
+        usleep(6250);
+    }
+
+}
+
 void display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -189,7 +206,7 @@ void display(void)
         glFlush();
         glColor3f(0.1,0.1,0.1);
         draw(p1,q1,p2,q2);
-        sleep(1);
+        sleep1();
     }
     glFlush();
     glColor3f(1.0, 0.0, 0.0);
@@ -245,7 +262,7 @@ void displayrev()
         draw(p1,q1,p2,q2);
         glColor3f(0.1,0.1,0.1);
         draw(p3,q3,p4,q4);
-        sleep(1);
+        sleep1();
     }
     glEnd();
     glFlush();
